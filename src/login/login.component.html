@@ -68,12 +68,12 @@
         <span *ngIf="loading">Signing in...</span>
       </button>
 
-      <div class="demo-credentials" *ngIf="config?.demoCredentials">
-        <p><strong>Demo Credentials:</strong></p>
-        <p>Username: <code>{{ config.demoCredentials.username }}</code></p>
-        <p>Password: <code>{{ config.demoCredentials.password }}</code></p>
-      </div>
-    </form>
+          <div class="demo-credentials" *ngIf="config.demoCredentials">
+            <p><strong>Demo Credentials:</strong></p>
+            <p>Username: <code>{{ config.demoCredentials?.username }}</code></p>
+            <p>Password: <code>{{ config.demoCredentials?.password }}</code></p>
+          </div>
+        </form>
 
     <!-- 2FA Verification Form -->
     <form *ngIf="requiresTwoFactor" (ngSubmit)="onVerify2FA()" class="login-form">
