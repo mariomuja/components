@@ -45,7 +45,7 @@ export class SharedLoginComponent implements OnInit {
     this.error = '';
 
     this.authService.login(this.username, this.password).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.requiresTwoFactor) {
           this.requiresTwoFactor = true;
           this.tempToken = response.tempToken || '';
@@ -55,7 +55,7 @@ export class SharedLoginComponent implements OnInit {
           this.setOrganizationAndNavigate(response.user?.organizationId);
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = err.error?.error || 'Login failed. Please check your credentials.';
         this.loading = false;
       }
@@ -72,10 +72,10 @@ export class SharedLoginComponent implements OnInit {
     this.error = '';
 
     this.authService.verify2FA(this.tempToken, this.twoFactorCode).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.setOrganizationAndNavigate(response.user?.organizationId);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = err.error?.error || '2FA verification failed';
         this.loading = false;
       }
