@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,10 +12,13 @@ import { LoginConfig } from './login-config.interface';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class SharedLoginComponent {
+export class SharedLoginComponent implements OnInit {
   @Input() config!: LoginConfig;
   @Input() authService: any; // Will be injected by consuming app
   @Input() organizationService?: any; // Optional, for bookkeeping app
+  
+  private router = inject(Router);
+  
   username = '';
   password = '';
   twoFactorCode = '';
@@ -25,14 +28,10 @@ export class SharedLoginComponent {
   error = '';
   requiresTwoFactor = false;
 
-  constructor(
-    private authService: AuthService,
-    private organizationService: OrganizationService,
-    private router: Router
-  ) {
+  ngOnInit() {
     // If already authenticated, redirect to dashboard
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+    if (this.authService?.isAuthenticated()) {
+      this.router.navigate([this.config?.redirectAfterLogin || '/dashboard']);
     }
   }
 
