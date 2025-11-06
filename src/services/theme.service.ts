@@ -46,11 +46,7 @@ export class ThemeService {
   private themeSubject: BehaviorSubject<Theme>;
   public theme$: Observable<Theme>;
 
-  constructor(config?: ThemeConfig) {
-    if (config) {
-      this.config = { ...this.config, ...config };
-    }
-
+  constructor() {
     const savedTheme = this.getSavedTheme();
     this.themeSubject = new BehaviorSubject<Theme>(savedTheme);
     this.theme$ = this.themeSubject.asObservable();

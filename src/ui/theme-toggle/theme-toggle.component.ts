@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ThemeService, Theme } from '../../services/theme.service';
 
 export type ThemeToggleStyle = 'button' | 'switch' | 'select';
@@ -24,7 +25,7 @@ export type ThemeToggleStyle = 'button' | 'switch' | 'select';
 @Component({
   selector: 'shared-theme-toggle',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="theme-toggle" [ngClass]="'theme-toggle-' + toggleStyle">
       <!-- Button Style -->
@@ -171,8 +172,8 @@ export class ThemeToggleComponent implements OnInit {
     this.themeService.toggleTheme();
   }
 
-  onThemeChange(theme: Theme): void {
-    this.themeService.setTheme(theme);
+  onThemeChange(theme: any): void {
+    this.themeService.setTheme(theme as Theme);
   }
 
   getThemeIcon(): string {
