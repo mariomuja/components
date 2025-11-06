@@ -27,6 +27,7 @@ export class SharedLoginComponent implements OnInit {
   loading = false;
   error = '';
   requiresTwoFactor = false;
+  showPassword = false;
 
   ngOnInit() {
     // If already authenticated, redirect to dashboard
@@ -110,6 +111,10 @@ export class SharedLoginComponent implements OnInit {
     this.twoFactorCode = '';
     this.tempToken = '';
     this.error = '';
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }
 
