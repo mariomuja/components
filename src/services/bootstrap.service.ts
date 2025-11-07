@@ -1,10 +1,9 @@
-import { Injectable, Inject, Optional } from '@angular/core';
+import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, firstValueFrom } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { BootstrapConfig, BootstrapCheck, BootstrapState } from './bootstrap-config.interface';
 
-import { InjectionToken } from '@angular/core';
 export const BOOTSTRAP_CONFIG = new InjectionToken<BootstrapConfig>('BOOTSTRAP_CONFIG');
 
 @Injectable({

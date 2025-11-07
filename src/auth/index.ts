@@ -1,4 +1,3 @@
-export * from './login';
 export * from './auth.guard';
 export { createAuthGuard, authGuard, AuthGuardConfig } from './auth.guard';
 
