@@ -31,17 +31,15 @@ export class BootstrapService {
       apiEndpoint: config?.apiEndpoint || '/health',
       authTokenKey: config?.authTokenKey || 'authToken',
       errorMessages: {
-        backendNotResponding: config?.errorMessages?.backendNotResponding || 'Backend server is not responding',
-        backendHealthFailed: config?.errorMessages?.backendHealthFailed || 'Backend health check failed',
-        apiEndpointsFailed: config?.errorMessages?.apiEndpointsFailed || 'Failed to reach API endpoints',
-        ...config?.errorMessages
+        backendNotResponding: config?.errorMessages?.backendNotResponding ?? 'Backend server is not responding',
+        backendHealthFailed: config?.errorMessages?.backendHealthFailed ?? 'Backend health check failed',
+        apiEndpointsFailed: config?.errorMessages?.apiEndpointsFailed ?? 'Failed to reach API endpoints'
       },
       successMessages: {
-        backendConnected: config?.successMessages?.backendConnected || 'Connected to backend',
-        backendHealthy: config?.successMessages?.backendHealthy || 'Backend healthy',
-        apiEndpoints: config?.successMessages?.apiEndpoints || 'API endpoints available',
-        authenticated: config?.successMessages?.authenticated || 'User authenticated',
-        ...config?.successMessages
+        backendConnected: config?.successMessages?.backendConnected ?? 'Connected to backend',
+        backendHealthy: config?.successMessages?.backendHealthy ?? 'Backend healthy',
+        apiEndpoints: config?.successMessages?.apiEndpoints ?? 'API endpoints available',
+        authenticated: config?.successMessages?.authenticated ?? 'User authenticated'
       }
     };
   }
