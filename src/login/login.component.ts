@@ -42,7 +42,7 @@ export class SharedLoginComponent implements OnInit {
   ngOnInit() {
     // If already authenticated, redirect to dashboard
     if (this.authService?.isAuthenticated()) {
-      this.router.navigate([this.config?.redirectAfterLogin || '/dashboard']);
+      this.router?.navigate([this.config?.redirectAfterLogin || '/dashboard']);
     }
     
     // Set default mode based on config
@@ -142,7 +142,7 @@ export class SharedLoginComponent implements OnInit {
     
     // Navigate to configured redirect or default to /dashboard
     const redirectUrl = this.config?.redirectAfterLogin || '/dashboard';
-    this.router.navigate([redirectUrl]);
+    this.router?.navigate([redirectUrl]);
   }
 
   cancelTwoFactor() {
