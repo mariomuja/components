@@ -1,4 +1,4 @@
-import { Component, Input, inject, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Optional, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -17,8 +17,6 @@ export class SharedLoginComponent implements OnInit {
   @Input() authService: any; // Will be injected by consuming app
   @Input() organizationService?: any; // Optional, for bookkeeping app
   
-  private router?: Router;
-  
   username = '';
   password = '';
   twoFactorCode = '';
@@ -30,13 +28,8 @@ export class SharedLoginComponent implements OnInit {
   showPassword = false;
   loginMode: 'demo' | 'production' = 'demo';
 
-  constructor() {
-    // Inject Router in constructor to avoid NG0203 error
-    try {
-      this.router = inject(Router);
-    } catch (e) {
-      console.warn('Router injection failed:', e);
-    }
+  constructor(@Optional() private router?: Router) {
+    // Router is now properly injected via constructor DI
   }
 
   ngOnInit() {
