@@ -24,6 +24,12 @@ export class BootstrapService {
     checkPerformance: boolean;
     performanceThresholdMs: number;
     externalIntegrations?: Array<{name: string; endpoint: string; method?: 'GET' | 'POST'}>;
+    emailNotification?: {
+      enabled: boolean;
+      recipientEmail: string;
+      appName: string;
+      emailEndpoint: string;
+    };
     errorMessages: {
       backendNotResponding: string;
       backendHealthFailed: string;
@@ -44,6 +50,7 @@ export class BootstrapService {
       externalIntegrationOk: string;
     };
   };
+  private emailNotificationSent = false;
   private bootstrapStateSubject = new BehaviorSubject<BootstrapState>({
     isReady: false,
     checks: [],
@@ -68,6 +75,12 @@ export class BootstrapService {
       checkPerformance: config?.checkPerformance ?? false,
       performanceThresholdMs: config?.performanceThresholdMs || 1000,
       externalIntegrations: config?.externalIntegrations,
+      emailNotification: config?.emailNotification ? {
+        enabled: config.emailNotification.enabled,
+        recipientEmail: config.emailNotification.recipientEmail,
+        appName: config.emailNotification.appName,
+        emailEndpoint: config.emailNotification.emailEndpoint || '/notify/bootstrap-error'
+      } : undefined,
       errorMessages: {
         backendNotResponding: config?.errorMessages?.backendNotResponding ?? 'Backend server is not responding',
         backendHealthFailed: config?.errorMessages?.backendHealthFailed ?? 'Backend health check failed',
@@ -210,11 +223,18 @@ export class BootstrapService {
     
     const allSuccessful = checks.every(c => c.status === 'success' || c.status === 'warning');
     
+    // Send email notification if there are errors and email is configured
+    if (!allSuccessful && this.config.emailNotification?.enabled && !this.emailNotificationSent) {
+      this.sendEmailNotification(checks);
+      this.emailNotificationSent = true;
+    }
+    
     this.updateState({
       isReady: allSuccessful,
       checks,
       overallStatus: allSuccessful ? 'ready' : 'error',
-      error: allSuccessful ? undefined : 'Some bootstrap checks failed'
+      error: allSuccessful ? undefined : 'Some bootstrap checks failed',
+      developerNotified: !allSuccessful && this.config.emailNotification?.enabled ? true : false
     });
 
     return allSuccessful;
@@ -384,11 +404,48 @@ export class BootstrapService {
    * Reset bootstrap state
    */
   reset(): void {
+    this.emailNotificationSent = false; // Allow re-sending on retry
     this.updateState({
       isReady: false,
       checks: [],
       overallStatus: 'initializing'
     });
+  }
+
+  /**
+   * Send email notification about bootstrap errors
+   */
+  private sendEmailNotification(checks: BootstrapCheck[]): void {
+    if (!this.config.emailNotification) return;
+
+    const failedChecks = checks.filter(c => c.status === 'error');
+    const warningChecks = checks.filter(c => c.status === 'warning');
+
+    const emailData = {
+      to: this.config.emailNotification.recipientEmail,
+      subject: `⚠️ ${this.config.emailNotification.appName} - Bootstrap Error Detected`,
+      appName: this.config.emailNotification.appName,
+      timestamp: new Date().toISOString(),
+      failedChecks: failedChecks.map(c => ({
+        name: c.name,
+        message: c.message,
+        details: c.details
+      })),
+      warningChecks: warningChecks.map(c => ({
+        name: c.name,
+        message: c.message
+      })),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    };
+
+    // Send asynchronously, don't wait for response
+    this.http.post(`${this.config.apiUrl}${this.config.emailNotification.emailEndpoint}`, emailData)
+      .pipe(catchError(() => of(null)))
+      .subscribe({
+        next: () => console.log('[Bootstrap] Email notification sent to developer'),
+        error: (err) => console.error('[Bootstrap] Failed to send email notification:', err)
+      });
   }
 
   /**

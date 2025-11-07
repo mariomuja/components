@@ -233,6 +233,16 @@
   font-size: 14px;
 }
 
+.developer-notified {
+  margin-top: 12px !important;
+  padding: 10px;
+  background-color: #d1fae5;
+  border: 1px solid #10b981;
+  border-radius: 6px;
+  color: #065f46 !important;
+  font-size: 13px !important;
+}
+
 .actions {
   display: flex;
   gap: 10px;

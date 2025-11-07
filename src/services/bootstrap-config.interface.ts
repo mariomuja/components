@@ -11,6 +11,18 @@ export interface BootstrapState {
   checks: BootstrapCheck[];
   overallStatus: 'initializing' | 'ready' | 'error';
   error?: string;
+  developerNotified?: boolean;
+}
+
+export interface EmailNotificationConfig {
+  /** Whether to send email notifications on bootstrap failures */
+  enabled: boolean;
+  /** Developer email to notify */
+  recipientEmail: string;
+  /** Application name for email subject */
+  appName: string;
+  /** API endpoint for sending emails */
+  emailEndpoint?: string;
 }
 
 export interface BootstrapConfig {
@@ -18,6 +30,11 @@ export interface BootstrapConfig {
    * API base URL (e.g., '/api' or 'http://localhost:3000/api')
    */
   apiUrl: string;
+  
+  /**
+   * Email notification configuration for bootstrap failures
+   */
+  emailNotification?: EmailNotificationConfig;
   
   /**
    * Request timeout in milliseconds

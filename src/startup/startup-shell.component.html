@@ -50,6 +50,9 @@
         <div class="error-message">
           <h3>Startup Failed</h3>
           <p>{{ bootstrapState.error }}</p>
+          <p *ngIf="bootstrapState.developerNotified" class="developer-notified">
+            ✅ <strong>Developer Notified:</strong> The developer has been automatically notified about this issue via email and will investigate.
+          </p>
         </div>
       </div>
 
