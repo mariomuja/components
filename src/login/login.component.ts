@@ -28,12 +28,42 @@ export class SharedLoginComponent implements OnInit {
   error = '';
   requiresTwoFactor = false;
   showPassword = false;
+  loginMode: 'demo' | 'production' = 'demo';
 
   ngOnInit() {
     // If already authenticated, redirect to dashboard
     if (this.authService?.isAuthenticated()) {
       this.router.navigate([this.config?.redirectAfterLogin || '/dashboard']);
     }
+    
+    // Set default mode based on config
+    if (this.config?.quickDemoMode) {
+      this.loginMode = 'demo';
+    } else if (this.config?.showProductionLogin) {
+      this.loginMode = 'production';
+    }
+  }
+
+  switchToProductionLogin() {
+    this.loginMode = 'production';
+    this.error = '';
+  }
+
+  switchToDemoLogin() {
+    this.loginMode = 'demo';
+    this.error = '';
+  }
+
+  quickDemoLogin() {
+    if (!this.config.demoCredentials) {
+      this.error = 'Demo credentials not configured';
+      return;
+    }
+    
+    // Auto-fill demo credentials and login
+    this.username = this.config.demoCredentials.username;
+    this.password = this.config.demoCredentials.password;
+    this.onLogin();
   }
 
   async onLogin() {

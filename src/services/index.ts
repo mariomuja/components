@@ -5,3 +5,4 @@ export * from './bootstrap-config.interface';
 export * from './shared-documentation.service';
 export * from './documentation-config.interface';
 export * from './markdown.service';
+export * from './authentication.service';

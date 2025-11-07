@@ -18,3 +18,6 @@ export * from './startup';
 
 // Documentation
 export * from './documentation';
+
+// Admin
+export * from './admin';
