@@ -153,10 +153,11 @@ export class BootstrapService {
         errorMessage = `Backend returned error: ${error.status} ${error.statusText || ''}`;
       }
       
+      const finalMessage = errorMessage || this.config.errorMessages.backendNotResponding;
       return {
         name: 'Backend Connectivity',
         status: 'error',
-        message: errorMessage || this.config.errorMessages.backendNotResponding,
+        message: finalMessage,
         timestamp: new Date(),
         details: {
           url: this.config.apiUrl,
