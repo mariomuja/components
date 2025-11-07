@@ -1,5 +1,6 @@
-// Auth
-export * from './auth';
+// Auth - Not exported from main index to prevent inject() bundling issues
+// Apps can import directly from '@shared-components/auth' if needed
+// export * from './auth';
 
 // Services
 export * from './services';
