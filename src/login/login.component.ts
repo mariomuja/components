@@ -17,7 +17,7 @@ export class SharedLoginComponent implements OnInit {
   @Input() authService: any; // Will be injected by consuming app
   @Input() organizationService?: any; // Optional, for bookkeeping app
   
-  private router = inject(Router);
+  private router?: Router;
   
   username = '';
   password = '';
@@ -29,6 +29,15 @@ export class SharedLoginComponent implements OnInit {
   requiresTwoFactor = false;
   showPassword = false;
   loginMode: 'demo' | 'production' = 'demo';
+
+  constructor() {
+    // Inject Router in constructor to avoid NG0203 error
+    try {
+      this.router = inject(Router);
+    } catch (e) {
+      console.warn('Router injection failed:', e);
+    }
+  }
 
   ngOnInit() {
     // If already authenticated, redirect to dashboard
