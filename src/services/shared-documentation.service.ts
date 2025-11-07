@@ -1,4 +1,4 @@
-import { Injectable, Inject, Optional } from '@angular/core';
+import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -7,7 +7,7 @@ import { DocumentationConfig, DocumentationFile } from './documentation-config.i
 // Re-export types for convenience
 export { DocumentationConfig, DocumentationFile } from './documentation-config.interface';
 
-export const DOCUMENTATION_CONFIG = 'DOCUMENTATION_CONFIG';
+export const DOCUMENTATION_CONFIG = new InjectionToken<DocumentationConfig>('DOCUMENTATION_CONFIG');
 
 @Injectable({
   providedIn: 'root'
