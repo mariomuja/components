@@ -11,7 +11,23 @@ export const BOOTSTRAP_CONFIG = new InjectionToken<BootstrapConfig>('BOOTSTRAP_C
   providedIn: 'root'
 })
 export class BootstrapService {
-  private readonly config: Required<BootstrapConfig>;
+  private readonly config: {
+    apiUrl: string;
+    timeoutMs: number;
+    apiEndpoint: string;
+    authTokenKey: string;
+    errorMessages: {
+      backendNotResponding: string;
+      backendHealthFailed: string;
+      apiEndpointsFailed: string;
+    };
+    successMessages: {
+      backendConnected: string;
+      backendHealthy: string;
+      apiEndpoints: string;
+      authenticated: string;
+    };
+  };
   private bootstrapStateSubject = new BehaviorSubject<BootstrapState>({
     isReady: false,
     checks: [],
