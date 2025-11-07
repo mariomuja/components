@@ -1,5 +1,5 @@
-// Auth - Removed to prevent inject() calls from being bundled
-// export * from './auth';
+// Auth
+export * from './auth';
 
 // Services
 export * from './services';
