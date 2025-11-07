@@ -1,7 +1,6 @@
-import { Component, Input, OnInit, Optional, Inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { LoginConfig } from './login-config.interface';
 
 // Note: AuthService and OrganizationService should be provided by the consuming app
@@ -16,6 +15,7 @@ export class SharedLoginComponent implements OnInit {
   @Input() config!: LoginConfig;
   @Input() authService: any; // Will be injected by consuming app
   @Input() organizationService?: any; // Optional, for bookkeeping app
+  @Output() loginSuccess = new EventEmitter<void>();
   
   username = '';
   password = '';
@@ -28,14 +28,10 @@ export class SharedLoginComponent implements OnInit {
   showPassword = false;
   loginMode: 'demo' | 'production' = 'demo';
 
-  constructor(@Optional() private router?: Router) {
-    // Router is now properly injected via constructor DI
-  }
-
   ngOnInit() {
-    // If already authenticated, redirect to dashboard
+    // If already authenticated, emit success (parent will handle navigation)
     if (this.authService?.isAuthenticated()) {
-      this.router?.navigate([this.config?.redirectAfterLogin || '/dashboard']);
+      this.loginSuccess.emit();
     }
     
     // Set default mode based on config
@@ -133,9 +129,8 @@ export class SharedLoginComponent implements OnInit {
       this.organizationService.setCurrentOrganization(demoOrg);
     }
     
-    // Navigate to configured redirect or default to /dashboard
-    const redirectUrl = this.config?.redirectAfterLogin || '/dashboard';
-    this.router?.navigate([redirectUrl]);
+    // Emit success - parent component will handle navigation
+    this.loginSuccess.emit();
   }
 
   cancelTwoFactor() {
