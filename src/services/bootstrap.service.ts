@@ -150,7 +150,7 @@ export class BootstrapService {
       } else if (error.status === 0) {
         errorMessage = 'Backend server is not running or not reachable';
       } else if (error.status) {
-        errorMessage = `Backend returned error: ${error.status} ${error.statusText}`;
+        errorMessage = `Backend returned error: ${error.status} ${error.statusText || ''}`;
       }
       
       return {
