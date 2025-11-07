@@ -4,6 +4,9 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DocumentationConfig, DocumentationFile } from './documentation-config.interface';
 
+// Re-export types for convenience
+export { DocumentationConfig, DocumentationFile } from './documentation-config.interface';
+
 export const DOCUMENTATION_CONFIG = 'DOCUMENTATION_CONFIG';
 
 @Injectable({

@@ -4,6 +4,9 @@ import { BehaviorSubject, Observable, of, firstValueFrom } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { BootstrapConfig, BootstrapCheck, BootstrapState } from './bootstrap-config.interface';
 
+// Re-export types for convenience
+export { BootstrapConfig, BootstrapCheck, BootstrapState } from './bootstrap-config.interface';
+
 export const BOOTSTRAP_CONFIG = new InjectionToken<BootstrapConfig>('BOOTSTRAP_CONFIG');
 
 @Injectable({
