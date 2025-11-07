@@ -130,7 +130,7 @@
       </button>
 
       <!-- OAuth Providers -->
-      <div class="oauth-providers" *ngIf="config?.authenticationMethods && config?.authenticationMethods?.length > 1">
+      <div class="oauth-providers" *ngIf="(config?.authenticationMethods?.length ?? 0) > 1">
         <div class="divider">
           <span>or continue with</span>
         </div>
