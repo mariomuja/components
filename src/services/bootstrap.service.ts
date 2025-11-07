@@ -18,16 +18,30 @@ export class BootstrapService {
     timeoutMs: number;
     apiEndpoint: string;
     authTokenKey: string;
+    criticalEndpoints?: string[];
+    checkDatabase: boolean;
+    validateSession: boolean;
+    checkPerformance: boolean;
+    performanceThresholdMs: number;
+    externalIntegrations?: Array<{name: string; endpoint: string; method?: 'GET' | 'POST'}>;
     errorMessages: {
       backendNotResponding: string;
       backendHealthFailed: string;
       apiEndpointsFailed: string;
+      databaseOffline: string;
+      sessionInvalid: string;
+      performanceSlow: string;
+      externalIntegrationFailed: string;
     };
     successMessages: {
       backendConnected: string;
       backendHealthy: string;
       apiEndpoints: string;
       authenticated: string;
+      databaseConnected: string;
+      sessionValid: string;
+      performanceGood: string;
+      externalIntegrationOk: string;
     };
   };
   private bootstrapStateSubject = new BehaviorSubject<BootstrapState>({
@@ -48,16 +62,30 @@ export class BootstrapService {
       timeoutMs: config?.timeoutMs || 5000,
       apiEndpoint: config?.apiEndpoint || '/health',
       authTokenKey: config?.authTokenKey || 'authToken',
+      criticalEndpoints: config?.criticalEndpoints,
+      checkDatabase: config?.checkDatabase ?? false,
+      validateSession: config?.validateSession ?? false,
+      checkPerformance: config?.checkPerformance ?? false,
+      performanceThresholdMs: config?.performanceThresholdMs || 1000,
+      externalIntegrations: config?.externalIntegrations,
       errorMessages: {
         backendNotResponding: config?.errorMessages?.backendNotResponding ?? 'Backend server is not responding',
         backendHealthFailed: config?.errorMessages?.backendHealthFailed ?? 'Backend health check failed',
-        apiEndpointsFailed: config?.errorMessages?.apiEndpointsFailed ?? 'Failed to reach API endpoints'
+        apiEndpointsFailed: config?.errorMessages?.apiEndpointsFailed ?? 'Failed to reach API endpoints',
+        databaseOffline: config?.errorMessages?.databaseOffline ?? 'Database connection failed',
+        sessionInvalid: config?.errorMessages?.sessionInvalid ?? 'Session validation failed',
+        performanceSlow: config?.errorMessages?.performanceSlow ?? 'API performance is degraded',
+        externalIntegrationFailed: config?.errorMessages?.externalIntegrationFailed ?? 'External integration check failed'
       },
       successMessages: {
         backendConnected: config?.successMessages?.backendConnected ?? 'Connected to backend',
         backendHealthy: config?.successMessages?.backendHealthy ?? 'Backend healthy',
         apiEndpoints: config?.successMessages?.apiEndpoints ?? 'API endpoints available',
-        authenticated: config?.successMessages?.authenticated ?? 'User authenticated'
+        authenticated: config?.successMessages?.authenticated ?? 'User authenticated',
+        databaseConnected: config?.successMessages?.databaseConnected ?? 'Database connected',
+        sessionValid: config?.successMessages?.sessionValid ?? 'Session valid',
+        performanceGood: config?.successMessages?.performanceGood ?? 'Performance optimal',
+        externalIntegrationOk: config?.successMessages?.externalIntegrationOk ?? 'External integrations available'
       }
     };
   }
@@ -121,7 +149,62 @@ export class BootstrapService {
       overallStatus: 'initializing'
     });
 
-    // Check 4: Authentication Status
+    // Check 4: Database Connectivity (if enabled)
+    if (this.config.checkDatabase) {
+      const dbCheck = await this.checkDatabase();
+      checks.push(dbCheck);
+      this.updateState({
+        isReady: false,
+        checks: [...checks],
+        overallStatus: 'initializing'
+      });
+    }
+
+    // Check 5: Critical Endpoints (if configured)
+    if (this.config.criticalEndpoints && this.config.criticalEndpoints.length > 0) {
+      const criticalCheck = await this.checkCriticalEndpoints();
+      checks.push(criticalCheck);
+      this.updateState({
+        isReady: false,
+        checks: [...checks],
+        overallStatus: 'initializing'
+      });
+    }
+
+    // Check 6: Session Validation (if enabled and session exists)
+    if (this.config.validateSession && localStorage.getItem(this.config.authTokenKey)) {
+      const sessionCheck = await this.checkSessionValidity();
+      checks.push(sessionCheck);
+      this.updateState({
+        isReady: false,
+        checks: [...checks],
+        overallStatus: 'initializing'
+      });
+    }
+
+    // Check 7: External Integrations (if configured)
+    if (this.config.externalIntegrations && this.config.externalIntegrations.length > 0) {
+      const integrationCheck = await this.checkExternalIntegrations();
+      checks.push(integrationCheck);
+      this.updateState({
+        isReady: false,
+        checks: [...checks],
+        overallStatus: 'initializing'
+      });
+    }
+
+    // Check 8: Performance Metrics (if enabled)
+    if (this.config.checkPerformance) {
+      const perfCheck = await this.checkPerformance();
+      checks.push(perfCheck);
+      this.updateState({
+        isReady: false,
+        checks: [...checks],
+        overallStatus: 'initializing'
+      });
+    }
+
+    // Check 9: Authentication Status
     const authCheck = this.checkAuthStatus();
     checks.push(authCheck);
     
@@ -306,6 +389,231 @@ export class BootstrapService {
       checks: [],
       overallStatus: 'initializing'
     });
+  }
+
+  /**
+   * Check database connectivity
+   */
+  private async checkDatabase(): Promise<BootstrapCheck> {
+    try {
+      const startTime = Date.now();
+      const health: any = await firstValueFrom(
+        this.http.get(`${this.config.apiUrl}/health/database`)
+          .pipe(
+            timeout(this.config.timeoutMs),
+            catchError(() => of(null))
+          )
+      );
+      const responseTime = Date.now() - startTime;
+
+      if (!health || !health.connected) {
+        return {
+          name: 'Database',
+          status: 'error',
+          message: this.config.errorMessages.databaseOffline,
+          timestamp: new Date(),
+          details: health
+        };
+      }
+
+      return {
+        name: 'Database',
+        status: 'success',
+        message: `${this.config.successMessages.databaseConnected} (${responseTime}ms) - ${health.database || 'Neon PostgreSQL'}`,
+        timestamp: new Date(),
+        details: health
+      };
+    } catch (error: any) {
+      return {
+        name: 'Database',
+        status: 'warning',
+        message: 'Database health endpoint not available (using fallback)',
+        timestamp: new Date(),
+        details: error?.message || 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * Check critical API endpoints
+   */
+  private async checkCriticalEndpoints(): Promise<BootstrapCheck> {
+    try {
+      const results = await Promise.all(
+        this.config.criticalEndpoints!.map(endpoint =>
+          firstValueFrom(
+            this.http.get(`${this.config.apiUrl}${endpoint}`)
+              .pipe(
+                timeout(this.config.timeoutMs),
+                catchError(() => of(null))
+              )
+          ).catch(() => null)
+        )
+      );
+
+      const failedEndpoints = this.config.criticalEndpoints!.filter((_, i) => results[i] === null);
+
+      if (failedEndpoints.length > 0) {
+        return {
+          name: 'Critical Endpoints',
+          status: 'warning',
+          message: `${failedEndpoints.length}/${this.config.criticalEndpoints!.length} endpoints failed`,
+          timestamp: new Date(),
+          details: { failed: failedEndpoints }
+        };
+      }
+
+      return {
+        name: 'Critical Endpoints',
+        status: 'success',
+        message: `All ${this.config.criticalEndpoints!.length} critical endpoints responding`,
+        timestamp: new Date()
+      };
+    } catch (error: any) {
+      return {
+        name: 'Critical Endpoints',
+        status: 'error',
+        message: 'Failed to validate critical endpoints',
+        timestamp: new Date(),
+        details: error?.message || 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * Validate existing session token
+   */
+  private async checkSessionValidity(): Promise<BootstrapCheck> {
+    try {
+      const token = localStorage.getItem(this.config.authTokenKey);
+      const headers: any = {};
+      
+      if (this.config.authTokenKey === 'sessionId') {
+        headers['x-session-id'] = token;
+      } else {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const validation: any = await firstValueFrom(
+        this.http.post(`${this.config.apiUrl}/auth/validate`, {}, { headers })
+          .pipe(
+            timeout(this.config.timeoutMs),
+            catchError(() => of({ valid: false }))
+          )
+      );
+
+      if (validation.valid) {
+        return {
+          name: 'Session Validation',
+          status: 'success',
+          message: this.config.successMessages.sessionValid,
+          timestamp: new Date()
+        };
+      } else {
+        // Clear invalid session
+        localStorage.removeItem(this.config.authTokenKey);
+        return {
+          name: 'Session Validation',
+          status: 'warning',
+          message: 'Session expired (cleared)',
+          timestamp: new Date()
+        };
+      }
+    } catch (error: any) {
+      return {
+        name: 'Session Validation',
+        status: 'warning',
+        message: 'Session validation not available',
+        timestamp: new Date()
+      };
+    }
+  }
+
+  /**
+   * Check external integrations
+   */
+  private async checkExternalIntegrations(): Promise<BootstrapCheck> {
+    try {
+      const results = await Promise.all(
+        this.config.externalIntegrations!.map(integration =>
+          firstValueFrom(
+            (integration.method === 'POST'
+              ? this.http.post(integration.endpoint, {})
+              : this.http.get(integration.endpoint)
+            ).pipe(
+              timeout(this.config.timeoutMs),
+              catchError(() => of(null))
+            )
+          ).catch(() => null)
+        )
+      );
+
+      const failedIntegrations = this.config.externalIntegrations!.filter((_, i) => results[i] === null);
+
+      if (failedIntegrations.length > 0) {
+        return {
+          name: 'External Integrations',
+          status: 'warning',
+          message: `${failedIntegrations.length}/${this.config.externalIntegrations!.length} integrations unavailable`,
+          timestamp: new Date(),
+          details: { failed: failedIntegrations.map(i => i.name) }
+        };
+      }
+
+      return {
+        name: 'External Integrations',
+        status: 'success',
+        message: `${this.config.externalIntegrations!.length} integration(s) available`,
+        timestamp: new Date()
+      };
+    } catch (error: any) {
+      return {
+        name: 'External Integrations',
+        status: 'warning',
+        message: this.config.errorMessages.externalIntegrationFailed,
+        timestamp: new Date(),
+        details: error?.message || 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * Check API performance
+   */
+  private async checkPerformance(): Promise<BootstrapCheck> {
+    try {
+      const startTime = Date.now();
+      await firstValueFrom(
+        this.http.get(`${this.config.apiUrl}/health`)
+          .pipe(timeout(this.config.timeoutMs))
+      );
+      const responseTime = Date.now() - startTime;
+
+      if (responseTime > this.config.performanceThresholdMs) {
+        return {
+          name: 'Performance',
+          status: 'warning',
+          message: `${this.config.errorMessages.performanceSlow} (${responseTime}ms)`,
+          timestamp: new Date(),
+          details: { responseTime, threshold: this.config.performanceThresholdMs }
+        };
+      }
+
+      return {
+        name: 'Performance',
+        status: 'success',
+        message: `${this.config.successMessages.performanceGood} (${responseTime}ms)`,
+        timestamp: new Date(),
+        details: { responseTime }
+      };
+    } catch (error: any) {
+      return {
+        name: 'Performance',
+        status: 'warning',
+        message: 'Performance check failed',
+        timestamp: new Date()
+      };
+    }
   }
 }
 
