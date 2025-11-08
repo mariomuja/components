@@ -12,7 +12,7 @@ import { LoginConfig } from './login-config.interface';
   styleUrls: ['./login.component.css']
 })
 export class SharedLoginComponent implements OnInit {
-  @Input() config: LoginConfig = {} as LoginConfig;
+  @Input() config!: LoginConfig;
   @Input() authService: any; // Will be injected by consuming app
   @Input() organizationService?: any; // Optional, for bookkeeping app
   @Output() loginSuccess = new EventEmitter<void>();
