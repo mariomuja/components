@@ -12,7 +12,7 @@ import { LoginConfig } from './login-config.interface';
   styleUrls: ['./login.component.css']
 })
 export class SharedLoginComponent implements OnInit {
-  @Input() config!: LoginConfig;
+  @Input() config: LoginConfig = {} as LoginConfig;
   @Input() authService: any; // Will be injected by consuming app
   @Input() organizationService?: any; // Optional, for bookkeeping app
   @Output() loginSuccess = new EventEmitter<void>();
@@ -53,14 +53,14 @@ export class SharedLoginComponent implements OnInit {
   }
 
   quickDemoLogin() {
-    if (!this.config.demoCredentials) {
+    if (!this.config?.demoCredentials) {
       this.error = 'Demo credentials not configured';
       return;
     }
     
     // Auto-fill demo credentials and login
-    this.username = this.config.demoCredentials.username;
-    this.password = this.config.demoCredentials.password;
+    this.username = this.config.demoCredentials.username || '';
+    this.password = this.config.demoCredentials.password || '';
     this.onLogin();
   }
 
