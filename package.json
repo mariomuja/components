@@ -1,6 +1,6 @@
 {
   "name": "@mario-muja/angular-shared-components",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Shared Angular components for Mario Muja's applications",
   "main": "dist/bundles/angular-shared-components.umd.js",
   "module": "dist/fesm2022/angular-shared-components.mjs",
@@ -10,6 +10,11 @@
   "fesm2022": "dist/fesm2022/angular-shared-components.mjs",
   "typings": "dist/index.d.ts",
   "sideEffects": false,
+  "files": [
+    "dist/**/*",
+    "package.json",
+    "README.md"
+  ],
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
     "watch": "ng-packagr -p ng-package.json --watch"
