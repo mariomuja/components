@@ -5,8 +5,8 @@
     "lib": ["ES2022", "dom"],
     "moduleResolution": "node",
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "declarationMap": false,
+    "sourceMap": false,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -15,7 +15,16 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "importHelpers": true,
+    "useDefineForClassFields": false
+  },
+  "angularCompilerOptions": {
+    "enableIvy": true,
+    "compilationMode": "partial",
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts"]

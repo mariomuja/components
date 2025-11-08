@@ -1,6 +1,6 @@
 {
   "name": "@mario-muja/angular-shared-components",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared Angular components for Mario Muja's applications",
   "main": "dist/bundles/angular-shared-components.umd.js",
   "module": "dist/fesm2022/angular-shared-components.mjs",
