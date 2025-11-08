@@ -1,6 +1,13 @@
 {
-  "name": "@mario-muja/angular-shared-components",
-  "version": "1.0.2",
+  "name": "@mariomuja/angular-shared-components",
+  "version": "1.0.5",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mariomuja/components.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "description": "Shared Angular components for Mario Muja's applications",
   "main": "dist/bundles/angular-shared-components.umd.js",
   "module": "dist/fesm2022/angular-shared-components.mjs",
@@ -10,13 +17,9 @@
   "fesm2022": "dist/fesm2022/angular-shared-components.mjs",
   "typings": "dist/index.d.ts",
   "sideEffects": false,
-  "files": [
-    "dist/**/*",
-    "package.json",
-    "README.md"
-  ],
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
+    "pack": "npm run build && node fix-package-paths.js && cd dist && npm pack && move *.tgz ..",
     "watch": "ng-packagr -p ng-package.json --watch"
   },
   "keywords": [
