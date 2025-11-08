@@ -27,6 +27,10 @@ export class SharedLoginComponent implements OnInit {
   requiresTwoFactor = false;
   showPassword = false;
   loginMode: 'demo' | 'production' = 'demo';
+  
+  get isReady(): boolean {
+    return !!this.config && !!this.config.appTitle;
+  }
 
   ngOnInit() {
     // If already authenticated, emit success (parent will handle navigation)
