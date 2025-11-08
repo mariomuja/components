@@ -392,12 +392,12 @@
   background: white;
   border-radius: 1rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  padding: 2rem;
+  padding: 2.5rem;
   width: 100%;
   max-width: 520px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   align-items: center;
   text-align: center;
   justify-content: center;
@@ -409,8 +409,8 @@
 }
 
 .developer-photo img {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #667eea;
@@ -418,12 +418,12 @@
 
 .photo-placeholder {
   display: none;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   align-items: center;
   justify-content: center;
@@ -435,14 +435,15 @@
 
 .developer-greeting {
   color: #374151;
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: 1.125rem;
+  line-height: 1.7;
   margin: 0;
 }
 
 .developer-greeting strong {
   color: #1f2937;
   font-weight: 700;
+  font-size: 1.2rem;
 }
 
 .developer-greeting a {
