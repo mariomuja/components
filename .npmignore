@@ -1,0 +1,8 @@
+src/
+node_modules/
+*.tgz
+*.log
+.git/
+tsconfig.json
+ng-package.json
+
